@@ -9,7 +9,7 @@ import { FaCalendarAlt } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { useCookies } from "react-cookie";
 import Image from "next/image";
-import logo from "@/public/logo.png"; // Adjust the path if needed
+import logo from "@/public/nextjs-13.svg"; // Adjust the path if needed
 import { getRules } from "@/app/shared";
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -139,7 +139,7 @@ export default function App() {
         onCollapse={changeCollaps}
         style={{ position: "sticky", top: 0, zIndex: 1, width: "80vh" }}>
         <div style={{ padding: 20, textAlign: "center" }}>
-          <Image src={logo} alt='' width={60} height={60} />
+          <Image src={logo} alt='' width={100} height={20} />
         </div>
 
         <Menu

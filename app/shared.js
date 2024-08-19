@@ -143,13 +143,13 @@ export const handlePrint = (tableRef, title, fontSize) => {
         <div class="top" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; font-size:10px">
           <div style="display: flex; align-items: center;">
             <div>
-              <div><h2>Crown Tourism</h2></div>
+              <div><h2>MOSTSHAR APP</h2></div>
               <div><img src="https://cdn-icons-png.flaticon.com/128/3781/3781607.png" width="4%"/> 00962790303111 </div>
               <div><img src="https://cdn-icons-png.flaticon.com/128/3781/3781605.png" width="4%"/> info@crown_tourism.com</div>
               <div><img src="https://cdn-icons-png.flaticon.com/128/1216/1216844.png" width="4%"/> Amman-Jordan</div>
             </div>
           </div>
-          <img src="/reports/logo.png" alt="Company Logo" style="width: 150px;">
+          <img src="/reports/logo.png" alt="Company Logo" style="width: 100px;">
         </div>
       `);
       printWindow.document.write(`<h4 style="text-align: center;">${title}</h4>`);
@@ -221,7 +221,7 @@ export const cardPrint = (cardRef, title) => {
         <div class="top" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; font-size:10px">
           <div style="display: flex; align-items: center;">
             <div>
-              <div><h2>Crown Tourism</h2></div>
+              <div><h2>MOSTSHAR APP</h2></div>
               <div class='title_text'><img src="https://cdn-icons-png.flaticon.com/128/3781/3781607.png" width="4%"/> 00962790303111 </div>
               <div class='title_text'><img src="https://cdn-icons-png.flaticon.com/128/3781/3781605.png" width="4%"/> info@crown_tourism.com</div>
               <div class='title_text'><img src="https://cdn-icons-png.flaticon.com/128/1216/1216844.png" width="4%"/> Amman-Jordan</div>
