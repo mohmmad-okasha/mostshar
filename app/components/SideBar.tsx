@@ -3,9 +3,11 @@ import Sider from "antd/es/layout/Sider";
 import React, { useEffect, useState } from "react";
 import { PieChartOutlined, UserOutlined } from "@ant-design/icons";
 import { FaRegEye } from "react-icons/fa6";
-import { LiaHotelSolid } from "react-icons/lia";
-import { TbHotelService } from "react-icons/tb";
-import { FaCalendarAlt } from "react-icons/fa";
+import { CiWallet } from "react-icons/ci";
+import { FaFileArrowUp, FaFileArrowDown } from "react-icons/fa6";
+import { TbInvoice } from "react-icons/tb";
+import { LuFolderTree } from "react-icons/lu";
+
 import { useRouter } from "next/navigation";
 import { useCookies } from "react-cookie";
 import Image from "next/image";
@@ -45,17 +47,7 @@ export default function App() {
         setCookies("loading", true);
         router.push("/users");
       },
-      disabled: rules["Users"] == 0,
-    },
-    {
-      key: "3",
-      icon: <LiaHotelSolid />,
-      label: "Hotels",
-      onClick: () => {
-        setCookies("loading", true);
-        router.push("/hotels");
-      },
-      disabled: rules["Hotels"] == 0,
+      disabled: rules["Users"] != 1,
     },
     {
       key: "4",
@@ -65,56 +57,52 @@ export default function App() {
         router.push("/logs");
         setCookies("loading", true);
       },
-      disabled: rules["Logs"] == 0,
+      disabled: rules["Logs"] != 1,
     },
     {
-      key: "5",
-      icon: <FaCalendarAlt />,
-      label: "Booking",
-      onClick: () => {
-        router.push("/bookings");
-        setCookies("loading", true);
-      },
-      disabled: rules["Booking"] == 0,
+      key: "sub1",
+      label: "Finance",
+      icon: <CiWallet />,
+      children: [
+        {
+          key: "14",
+          label: "Accounts",
+          icon: <LuFolderTree />,
+          onClick: () => {
+            router.push("/accounts");
+            setCookies("loading", true);
+          },
+          disabled: rules["Accounts"] != 1,
+        },
+        {
+          key: "sub3",
+          label: "Vouchers",
+          icon: <TbInvoice />,
+          children: [
+            {
+              key: "15",
+              label: "Receipt",
+              icon: <FaFileArrowDown />,
+              onClick: () => {
+                router.push("/receipt");
+                setCookies("loading", true);
+              },
+              disabled: rules["Receipt"] != 1,
+            },
+            {
+              key: "16",
+              label: "Payment",
+              icon: <FaFileArrowUp />,
+              onClick: () => {
+                router.push("/payment");
+                setCookies("loading", true);
+              },
+              disabled: rules["Payment"] != 1,
+            },
+          ],
+        },
+      ],
     },
-    {
-      key: "6",
-      icon: <TbHotelService />,
-      label: "Available Hotels",
-      onClick: () => {
-        router.push("/availableHotels");
-        setCookies("loading", true);
-      },
-      disabled: rules["Available Hotels"] == 0,
-    },
-    // {
-    //   key: "sub1",
-    //   label: "Navigation One",
-    //   icon: <MailOutlined />,
-    //   children: [
-    //     { key: "10", label: "Option 5" },
-    //     { key: "11", label: "Option 6" },
-    //     { key: "12", label: "Option 7" },
-    //     { key: "13", label: "Option 8" },
-    //   ],
-    // },
-    // {
-    //   key: "sub2",
-    //   label: "Navigation Two",
-    //   icon: <AppstoreOutlined />,
-    //   children: [
-    //     { key: "14", label: "Option 9" },
-    //     { key: "15", label: "Option 10" },
-    //     {
-    //       key: "sub3",
-    //       label: "Submenu",
-    //       children: [
-    //         { key: "16", label: "Option 11" },
-    //         { key: "17", label: "Option 12" },
-    //       ],
-    //     },
-    //   ],
-    // },
   ];
 
   //collaps or not on button click

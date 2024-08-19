@@ -1,5 +1,5 @@
 "use client";
-const PageName = "Users";
+const PageName = "Accounts";
 
 const api = getApiUrl();
 import { useRef } from "react";
@@ -45,11 +45,11 @@ export default function App() {
   const tableRef = useRef<HTMLDivElement>(null);
   const [_, setCookies] = useCookies(["loading"]); //for loading page
   const [form] = Form.useForm(); // to reset form after save or close
-  
+
   const userName = window.localStorage.getItem("userName");
   const [rulesMatch, setRulesMatch] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [allUsersData, setAllUsersData] = useState<any>([]);
+  const [allAccountsData, setAllAccountsData] = useState<any>([]);
   const [Loading, setLoading] = useState(true); // to show loading before get data form db
   const [edit, setEdit] = useState(false); // if true update else save new
   const [searchText, setSearchText] = useState(""); // to search on table
@@ -58,21 +58,15 @@ export default function App() {
     saveErrors: "",
     confirmPasswordError: "",
   });
-  const [userData, setUserData] = useState({
+  const [accountData, setAccountData] = useState({
     _id: "",
-    name: "",
-    email: "",
-    password: "",
-    password2: "",
+    accountNumber: "",
+    accountName: "",
+    accountType: "",
+    openBalance: "",
+    description: "",
+    parentAccount: "",
   });
-  const [userRules, setUserRules] = useState<{ [key: string]: number }>({
-    //users rules
-    Users: 0,
-    Logs: 0,
-    Accounts: 0,
-    //"Two Words": 0,
-  });
-
 
   useEffect(() => {
     //to get user rule for this page
@@ -93,29 +87,46 @@ export default function App() {
   };
 
   const fields: Field[] = [
-    { label: "Name", name: "name", type: "text", rules: [{ required: true }] },
     {
-      label: "Email",
-      name: "email",
-      type: "email",
-      rules: [{ type: "email", required: true }],
-    },
-    {
-      label: "Password",
-      name: "password",
-      type: "password",
+      label: "Account Number",
+      name: "accountNumber",
+      type: "text",
       rules: [{ required: true }],
     },
     {
-      label: "Confirm Password",
-      name: "password2",
-      type: "password",
-      rules: [{ required: true, message: "Passwords not match!" }],
+      label: "Account Name",
+      name: "accountName",
+      type: "text",
+      rules: [{ required: true }],
+    },
+    {
+      label: "Account Type",
+      name: "accountType",
+      type: "text",
+      rules: [{ required: true }],
+    },
+    {
+      label: "Open Balance",
+      name: "openBalance",
+      type: "number",
+      rules: [{ required: false }],
+    },
+    {
+      label: "Description",
+      name: "description",
+      type: "text",
+      rules: [{ required: false }],
+    },
+    {
+      label: "Parent Account",
+      name: "parentAccount",
+      type: "text",
+      rules: [{ required: true }],
     },
   ];
 
   const filteredFields = fields.filter(
-    (field) => field.name !== "password2" && field.name !== "password"
+    (field) => field.name !== "accountNumber"
   );
 
   const columns: TableColumnsType<any> = [
@@ -144,7 +155,7 @@ export default function App() {
               type='primary'
               danger
               onClick={() => {
-                setUserData(record);
+                setAccountData(record);
               }}
               shape='circle'
               size='small'
@@ -157,14 +168,13 @@ export default function App() {
             size='small'
             icon={<EditOutlined />}
             onClick={() => {
-              setUserData(record);
+              setAccountData(record);
               form.setFieldsValue({
                 name: record.name,
                 email: record.email,
                 rules: record.rules,
               });
               setEdit(true);
-              setUserRules(record.rules);
               showModal();
             }}
           />
@@ -173,33 +183,25 @@ export default function App() {
     },
   ];
 
-  const filteredData = allUsersData.filter((user: any) => {
+  const filteredData = allAccountsData.filter((account: any) => {
     // Implement your search logic here
     const searchTextLower = searchText.toLowerCase(); // Case-insensitive search
     return (
       // Search relevant fields
-      user.name.toLowerCase().includes(searchTextLower) ||
-      user.email.toLowerCase().includes(searchTextLower)
+      account.name.toLowerCase().includes(searchTextLower) ||
+      account.email.toLowerCase().includes(searchTextLower)
       // Add more fields as needed based on your data structure
     );
   });
 
-  function handleCheckboxChange(key: string) {
-    //on check/unchek rule box change userRules values
-    setUserRules((prevState) => ({
-      ...prevState,
-      [key]: prevState[key] === 0 ? 1 : 0,
-    }));
-  }
-
   async function getData() {
     setLoading(true);
     try {
-      const response = await Axios.get(`${api}/users`);
-      setAllUsersData(response.data);
+      const response = await Axios.get(`${api}/accounts`);
+      setAllAccountsData(response.data);
     } catch (error) {
       setErrors({ ...Errors, connectionError: error });
-      console.error("Error fetching users:", error);
+      console.error("Error fetching accounts:", error);
     } finally {
       setLoading(false);
       setCookies("loading", false);
@@ -208,15 +210,15 @@ export default function App() {
 
   async function save() {
     setErrors({ ...Errors, saveErrors: "" });
-    const response = await Axios.post(`${api}/users`, {
-      name: userData.name,
-      email: userData.email,
-      password: userData.password,
-      rules: userRules,
+    const response = await Axios.post(`${api}/accounts`, {
+      name: accountData.name,
+      email: accountData.email,
+      password: accountData.password,
+     
     });
     if (response.data.message === "Saved!") {
       getData();
-      saveLog("save new user: " + userData.name);
+      saveLog("save new account: " + accountData.name);
       toast.remove(); // remove any message on screen
       toast.success(response.data.message, {
         position: "top-center",
@@ -231,12 +233,12 @@ export default function App() {
 
   async function update() {
     setErrors({ ...Errors, saveErrors: "" });
-    const response = await Axios.put(`${api}/users`, {
-      _id: userData._id,
+    const response = await Axios.put(`${api}/accounts`, {
+      _id: accountData._id,
       name: form.getFieldValue("name"),
       email: form.getFieldValue("email"),
       password: form.getFieldValue("password"),
-      rules: userRules,
+    
     });
     if (response.data.message === "Updated!") {
       getData();
@@ -244,7 +246,7 @@ export default function App() {
       toast.success(response.data.message, {
         position: "top-center",
       });
-      saveLog("update user: " + userData.name);
+      saveLog("update account: " + accountData.name);
       setEdit(false);
       return true; // to close modal form
     } else {
@@ -254,8 +256,8 @@ export default function App() {
   }
 
   async function remove(id: string) {
-    Axios.delete(`${api}/users/${id}`).then((res) => {
-      saveLog("remove user: " + userData.name);
+    Axios.delete(`${api}/accounts/${id}`).then((res) => {
+      saveLog("remove account: " + accountData.name);
       getData();
       message.success("Removed");
     });
@@ -268,7 +270,7 @@ export default function App() {
   }
 
   async function handleOk() {
-    if (userData.password != userData.password2) {
+    if (accountData.password != accountData.password2) {
       //check pass is same
       setErrors({ ...Errors, confirmPasswordError: "error" });
       return;
@@ -296,7 +298,7 @@ export default function App() {
 
   const handleInputChange = useCallback(
     (field: any) => (e: any) => {
-      setUserData((prevData) => ({ ...prevData, [field]: e.target.value }));
+      setAccountData((prevData) => ({ ...prevData, [field]: e.target.value }));
     },
     []
   );
@@ -351,17 +353,7 @@ export default function App() {
                     )}
                   </Form.Item>
                 ))}
-                <Card title='Rules'>
-                  {Object.keys(userRules).map((key) => (
-                    <div style={{ padding: 3 }} key={key}>
-                      <Checkbox
-                        checked={userRules[key] === 1}
-                        onChange={() => handleCheckboxChange(key)}>
-                        {" " + capitalize(key)}
-                      </Checkbox>
-                    </div>
-                  ))}
-                </Card>
+               
                 <br />
                 <Divider />
                 <Form.Item style={{ marginBottom: -40, textAlign: "right" }}>
@@ -386,7 +378,7 @@ export default function App() {
                   type='text'
                   title='Print'
                   onClick={() => {
-                    handlePrint(tableRef,PageName,12)
+                    handlePrint(tableRef, PageName, 12);
                   }}
                   icon={<FaPrint size={"1em"} />}></Button>
                 <Button
