@@ -21,12 +21,15 @@ import {
   Button,
   Card,
   Checkbox,
+  Col,
   Divider,
   Form,
   Input,
   Modal,
   Popconfirm,
   Result,
+  Row,
+  Select,
   Table,
   TableColumnsType,
   message,
@@ -50,6 +53,7 @@ export default function App() {
   const [rulesMatch, setRulesMatch] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [allAccountsData, setAllAccountsData] = useState<any>([]);
+  const [accountsList, setAccountsList] = useState();
   const [Loading, setLoading] = useState(true); // to show loading before get data form db
   const [edit, setEdit] = useState(false); // if true update else save new
   const [searchText, setSearchText] = useState(""); // to search on table
@@ -68,6 +72,14 @@ export default function App() {
     parentAccount: "",
   });
 
+  const accountTypeOptions = [
+    { value: "Assets", label: "Assets" },
+    { value: "Liabilities", label: "Liabilities" },
+    { value: "Equity", label: "Equity" },
+    { value: "Revenue", label: "Revenue" },
+    { value: "Expenses", label: "Expenses" }
+  ];
+
   useEffect(() => {
     //to get user rule for this page
     getRules(userName, PageName).then((value) => {
@@ -84,9 +96,17 @@ export default function App() {
     name: string;
     type?: string; // Optional type for Input (e.g., "text", "email", "password")
     rules?: any[]; // Optional validation rules for Form.Item
+    options?: any[];
   };
 
   const fields: Field[] = [
+    {
+      label: "Parent Account",
+      name: "parentAccount",
+      type: "select",
+      rules: [{ required: true }],
+      options: accountsList,
+    },
     {
       label: "Account Number",
       name: "accountNumber",
@@ -102,7 +122,8 @@ export default function App() {
     {
       label: "Account Type",
       name: "accountType",
-      type: "text",
+      type: "select",
+      options: accountTypeOptions,
       rules: [{ required: true }],
     },
     {
@@ -117,20 +138,17 @@ export default function App() {
       type: "text",
       rules: [{ required: false }],
     },
-    {
-      label: "Parent Account",
-      name: "parentAccount",
-      type: "text",
-      rules: [{ required: true }],
-    },
+    { label: "User", name: "user", type: "text", rules: [{ required: true }] },
   ];
 
-  const filteredFields = fields.filter(
-    (field) => field.name !== "accountNumber"
+  const formFields = fields.filter(
+    (field) => field.name !== "user" && field.name !== "accountNumber"
   );
 
+  //const filteredFields = fields.filter((field) => field.name !== "accountNumber");
+
   const columns: TableColumnsType<any> = [
-    ...filteredFields.map((field) => ({
+    ...fields.map((field) => ({
       title: field.label,
       dataIndex: field.name,
     })),
@@ -209,58 +227,55 @@ export default function App() {
   }
 
   async function save() {
-    setErrors({ ...Errors, saveErrors: "" });
-    const response = await Axios.post(`${api}/accounts`, {
-      name: accountData.name,
-      email: accountData.email,
-      password: accountData.password,
-     
-    });
-    if (response.data.message === "Saved!") {
-      getData();
-      saveLog("save new account: " + accountData.name);
-      toast.remove(); // remove any message on screen
-      toast.success(response.data.message, {
-        position: "top-center",
-      });
-      return true; // to close modal form
-    } else {
-      setErrors({ ...Errors, saveErrors: response.data.message });
-
-      return false; // to keep modal form open
-    }
+    //   setErrors({ ...Errors, saveErrors: "" });
+    //   const response = await Axios.post(`${api}/accounts`, {
+    //     name: accountData.name,
+    //     email: accountData.email,
+    //     password: accountData.password,
+    //   });
+    //   if (response.data.message === "Saved!") {
+    //     getData();
+    //     saveLog("save new account: " + accountData.name);
+    //     toast.remove(); // remove any message on screen
+    //     toast.success(response.data.message, {
+    //       position: "top-center",
+    //     });
+    //     return true; // to close modal form
+    //   } else {
+    //     setErrors({ ...Errors, saveErrors: response.data.message });
+    //     return false; // to keep modal form open
+    //   }
   }
 
   async function update() {
-    setErrors({ ...Errors, saveErrors: "" });
-    const response = await Axios.put(`${api}/accounts`, {
-      _id: accountData._id,
-      name: form.getFieldValue("name"),
-      email: form.getFieldValue("email"),
-      password: form.getFieldValue("password"),
-    
-    });
-    if (response.data.message === "Updated!") {
-      getData();
-      toast.remove();
-      toast.success(response.data.message, {
-        position: "top-center",
-      });
-      saveLog("update account: " + accountData.name);
-      setEdit(false);
-      return true; // to close modal form
-    } else {
-      setErrors({ ...Errors, saveErrors: response.data.message });
-      return false; // to keep modal form open
-    }
+    // setErrors({ ...Errors, saveErrors: "" });
+    // const response = await Axios.put(`${api}/accounts`, {
+    //   _id: accountData._id,
+    //   name: form.getFieldValue("name"),
+    //   email: form.getFieldValue("email"),
+    //   password: form.getFieldValue("password"),
+    // });
+    // if (response.data.message === "Updated!") {
+    //   getData();
+    //   toast.remove();
+    //   toast.success(response.data.message, {
+    //     position: "top-center",
+    //   });
+    //   saveLog("update account: " + accountData.name);
+    //   setEdit(false);
+    //   return true; // to close modal form
+    // } else {
+    //   setErrors({ ...Errors, saveErrors: response.data.message });
+    //   return false; // to keep modal form open
+    // }
   }
 
   async function remove(id: string) {
-    Axios.delete(`${api}/accounts/${id}`).then((res) => {
-      saveLog("remove account: " + accountData.name);
-      getData();
-      message.success("Removed");
-    });
+    // Axios.delete(`${api}/accounts/${id}`).then((res) => {
+    //   saveLog("remove account: " + accountData.name);
+    //   getData();
+    //   message.success("Removed");
+    // });
   }
 
   async function showModal() {
@@ -270,24 +285,23 @@ export default function App() {
   }
 
   async function handleOk() {
-    if (accountData.password != accountData.password2) {
-      //check pass is same
-      setErrors({ ...Errors, confirmPasswordError: "error" });
-      return;
-    }
-    setErrors({ ...Errors, confirmPasswordError: "" });
-
-    if (!edit) {
-      if (await save()) {
-        setIsModalOpen(false);
-        form.resetFields();
-      }
-    } else {
-      if (await update()) {
-        setIsModalOpen(false);
-        form.resetFields();
-      }
-    }
+    // if (accountData.password != accountData.password2) {
+    //   //check pass is same
+    //   setErrors({ ...Errors, confirmPasswordError: "error" });
+    //   return;
+    // }
+    // setErrors({ ...Errors, confirmPasswordError: "" });
+    // if (!edit) {
+    //   if (await save()) {
+    //     setIsModalOpen(false);
+    //     form.resetFields();
+    //   }
+    // } else {
+    //   if (await update()) {
+    //     setIsModalOpen(false);
+    //     form.resetFields();
+    //   }
+    // }
   }
 
   function handleCancel() {
@@ -330,7 +344,7 @@ export default function App() {
             title={modalTitle}
             open={isModalOpen}
             onCancel={handleCancel}
-            width={400}
+            width={600}
             maskClosable={false} //not close by click out of modal
             footer={[]}>
             <Card>
@@ -340,20 +354,42 @@ export default function App() {
                 style={{ maxWidth: 600, textAlign: "center" }}
                 validateMessages={validateMessages}
                 onFinish={handleOk}>
-                {fields.map((field) => (
-                  <Form.Item
-                    key={field.name}
-                    label={field.label}
-                    name={field.name}
-                    rules={field.rules}>
-                    {field.type ? (
-                      <Input onChange={handleInputChange(field.name)} type={field.type} />
-                    ) : (
-                      <Input onChange={handleInputChange(field.name)} />
-                    )}
-                  </Form.Item>
-                ))}
-               
+                <Row>
+                  {formFields.map((field) => (
+                    <Col
+                      key={field.name}
+                      xs={{ flex: "100%" }}
+                      sm={{ flex: "50%" }}
+                      md={{ flex: "50%" }}
+                      lg={{ flex: "50%" }}
+                      style={{ padding: 5 }}>
+                      <Form.Item
+                        name={field.name}
+                        key={field.name}
+                        label={field.label}
+                        rules={field.rules}>
+                        {field.type ? (
+                          field.type === "select" ? (
+                            <Select
+                              onChange={handleInputChange(field.name)}
+                              showSearch
+                              allowClear
+                              options={field.options}
+                              style={{ width: "100%" }}
+                            />
+                          ) : (
+                            <Input
+                              onChange={handleInputChange(field.name)}
+                              type={field.type}
+                            />
+                          )
+                        ) : (
+                          <Input onChange={handleInputChange(field.name)} />
+                        )}
+                      </Form.Item>
+                    </Col>
+                  ))}
+                </Row>
                 <br />
                 <Divider />
                 <Form.Item style={{ marginBottom: -40, textAlign: "right" }}>
