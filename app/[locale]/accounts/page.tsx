@@ -67,9 +67,9 @@ export default function App() {
     accountNumber: "",
     accountName: "",
     accountType: "",
-    openBalance: "",
-    description: "",
+    balance: "",
     parentAccount: "",
+    notes: "",
   });
 
   const accountTypeOptions = [
@@ -77,8 +77,10 @@ export default function App() {
     { value: "Liabilities", label: "Liabilities" },
     { value: "Equity", label: "Equity" },
     { value: "Revenue", label: "Revenue" },
-    { value: "Expenses", label: "Expenses" }
+    { value: "Expenses", label: "Expenses" },
   ];
+
+  const AccounsOptions = [{ value: "Main", label: "Main" }];
 
   useEffect(() => {
     //to get user rule for this page
@@ -105,7 +107,8 @@ export default function App() {
       name: "parentAccount",
       type: "select",
       rules: [{ required: true }],
-      options: accountsList,
+      options: AccounsOptions,
+      //options: accountsList,
     },
     {
       label: "Account Number",
@@ -127,14 +130,14 @@ export default function App() {
       rules: [{ required: true }],
     },
     {
-      label: "Open Balance",
-      name: "openBalance",
+      label: "Balance",
+      name: "balance",
       type: "number",
       rules: [{ required: false }],
     },
     {
-      label: "Description",
-      name: "description",
+      label: "Notes",
+      name: "notes",
       type: "text",
       rules: [{ required: false }],
     },
@@ -206,8 +209,8 @@ export default function App() {
     const searchTextLower = searchText.toLowerCase(); // Case-insensitive search
     return (
       // Search relevant fields
-      account.name.toLowerCase().includes(searchTextLower) ||
-      account.email.toLowerCase().includes(searchTextLower)
+      account.accountNumber.toLowerCase().includes(searchTextLower) ||
+      account.accountName.toLowerCase().includes(searchTextLower)
       // Add more fields as needed based on your data structure
     );
   });
@@ -227,24 +230,29 @@ export default function App() {
   }
 
   async function save() {
-    //   setErrors({ ...Errors, saveErrors: "" });
-    //   const response = await Axios.post(`${api}/accounts`, {
-    //     name: accountData.name,
-    //     email: accountData.email,
-    //     password: accountData.password,
-    //   });
-    //   if (response.data.message === "Saved!") {
-    //     getData();
-    //     saveLog("save new account: " + accountData.name);
-    //     toast.remove(); // remove any message on screen
-    //     toast.success(response.data.message, {
-    //       position: "top-center",
-    //     });
-    //     return true; // to close modal form
-    //   } else {
-    //     setErrors({ ...Errors, saveErrors: response.data.message });
-    //     return false; // to keep modal form open
-    //   }
+
+    setErrors({ ...Errors, saveErrors: "" });
+    const response = await Axios.post(`${api}/accounts`, {
+      accountNumber: accountData.accountNumber,
+      accountName: accountData.accountName,
+      accountType: accountData.accountType,
+      balance: accountData.balance,
+      parentAccount: accountData.parentAccount,
+      notes: accountData.notes,
+      user: userName,
+    });
+    if (response.data.message === "Saved!") {
+      getData();
+      saveLog("save new account: " + accountData.accountName);
+      toast.remove(); // remove any message on screen
+      toast.success(response.data.message, {
+        position: "top-center",
+      });
+      return true; // to close modal form
+    } else {
+      setErrors({ ...Errors, saveErrors: response.data.message });
+      return false; // to keep modal form open
+    }
   }
 
   async function update() {
@@ -271,11 +279,11 @@ export default function App() {
   }
 
   async function remove(id: string) {
-    // Axios.delete(`${api}/accounts/${id}`).then((res) => {
-    //   saveLog("remove account: " + accountData.name);
-    //   getData();
-    //   message.success("Removed");
-    // });
+    Axios.delete(`${api}/accounts/${id}`).then((res) => {
+      saveLog("remove account: " + accountData.accountName);
+      getData();
+      message.success("Removed");
+    });
   }
 
   async function showModal() {
@@ -285,18 +293,12 @@ export default function App() {
   }
 
   async function handleOk() {
-    // if (accountData.password != accountData.password2) {
-    //   //check pass is same
-    //   setErrors({ ...Errors, confirmPasswordError: "error" });
-    //   return;
-    // }
-    // setErrors({ ...Errors, confirmPasswordError: "" });
-    // if (!edit) {
-    //   if (await save()) {
-    //     setIsModalOpen(false);
-    //     form.resetFields();
-    //   }
-    // } else {
+    if (await save()) {
+      setIsModalOpen(false);
+      form.resetFields();
+    }
+    if (!edit) {
+    } //else {
     //   if (await update()) {
     //     setIsModalOpen(false);
     //     form.resetFields();
@@ -312,10 +314,35 @@ export default function App() {
 
   const handleInputChange = useCallback(
     (field: any) => (e: any) => {
-      setAccountData((prevData) => ({ ...prevData, [field]: e.target.value }));
+      let value;
+
+      if (e && e.target) {
+        // Handle checkbox separately as it has 'checked' property instead of 'value'
+        if (e.target.type === "checkbox") {
+          value = e.target.checked;
+        } else {
+          value = e.target.value;
+        }
+      } else if (typeof e === "object" && e?.hasOwnProperty("value")) {
+        // Handle Select or other similar components with a value property
+        value = e.value;
+      } else {
+        value = e;
+      }
+
+      setAccountData((prevData) => ({
+        ...prevData,
+        [field]: value,
+      }));
+
+      console.log(field);
     },
     []
   );
+
+  useEffect(() => {
+    console.log(accountData);
+  }, [accountData]);
 
   const validateMessages = {
     required: "${label} is required!",

@@ -9,7 +9,7 @@ export default function Home({ params: { locale } }) {
   const [t, setT] = useState(() => (key: any) => key);
   useEffect(() => {
     async function loadTranslations() {
-      const { t } = await initTranslations(locale, ["default"]);
+      const { t } = await initTranslations(locale, ["common"]);
       setT(() => t);
     }
     loadTranslations();
@@ -18,7 +18,7 @@ export default function Home({ params: { locale } }) {
   return (
     <>
       <p>Mostshar app</p>
-      <p>{t("test")}</p>
+      <p>{t("ok")}</p>
 
       <LanguageChanger />
     </>

@@ -296,7 +296,7 @@ export default function App() {
 
   const handleInputChange = useCallback(
     (field: any) => (e: any) => {
-      setUserData((prevData) => ({ ...prevData, [field]: e.target.value }));
+      setUserData((prevData) => ({ ...prevData, [field]: e }));
     },
     []
   );
