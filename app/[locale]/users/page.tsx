@@ -45,7 +45,7 @@ export default function App() {
   const tableRef = useRef<HTMLDivElement>(null);
   const [_, setCookies] = useCookies(["loading"]); //for loading page
   const [form] = Form.useForm(); // to reset form after save or close
-  
+
   const userName = window.localStorage.getItem("userName");
   const [rulesMatch, setRulesMatch] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -72,7 +72,6 @@ export default function App() {
     Accounts: 0,
     //"Two Words": 0,
   });
-
 
   useEffect(() => {
     //to get user rule for this page
@@ -268,12 +267,14 @@ export default function App() {
   }
 
   async function handleOk() {
-    if (userData.password != userData.password2) {
-      //check pass is same
-      setErrors({ ...Errors, confirmPasswordError: "error" });
-      return;
+    {
+      // if (userData.password != userData.password2) {
+      //   //check pass is same
+      //   setErrors({ ...Errors, confirmPasswordError: "error" });
+      //   return;
+      // }
+      //setErrors({ ...Errors, confirmPasswordError: "" });
     }
-    setErrors({ ...Errors, confirmPasswordError: "" });
 
     if (!edit) {
       if (await save()) {
@@ -296,7 +297,10 @@ export default function App() {
 
   const handleInputChange = useCallback(
     (field: any) => (e: any) => {
-      setUserData((prevData) => ({ ...prevData, [field]: e }));
+      setUserData((prevData) => ({
+        ...prevData,
+        [field]: e.target.value,
+      }));
     },
     []
   );
@@ -316,6 +320,47 @@ export default function App() {
     () => (edit ? "Edit " : "Add ") + PageName.slice(0, -1),
     [edit]
   );
+
+  interface CreateFormItemProps {
+    fieldName: string;
+    rules: any[];
+    type?: "text" | "email" | "password";
+    label?: string;
+    fieldOptions?: { label: string; value: any }[];
+  }
+
+  const createFormItem = ({
+    fieldName,
+    rules,
+    type = "text",
+    label,
+    fieldOptions = [],
+  }: CreateFormItemProps) => {
+    const displayedLabel =
+      label || fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
+
+    return (
+      <Form.Item
+        key={fieldName}
+        label={displayedLabel}
+        name={fieldName}
+        rules={[
+          ...rules,
+          ({ getFieldValue }) => ({
+            validator(_, value) {
+              if (fieldName === "password2") {
+                if (value !== getFieldValue("password")) {
+                  return Promise.reject(new Error("Passwords do not match"));
+                }
+              }
+              return Promise.resolve();
+            },
+          }),
+        ]}>
+        <Input onChange={handleInputChange(fieldName)} type={type} />
+      </Form.Item>
+    );
+  };
 
   return (
     <>
@@ -338,7 +383,7 @@ export default function App() {
                 style={{ maxWidth: 600, textAlign: "center" }}
                 validateMessages={validateMessages}
                 onFinish={handleOk}>
-                {fields.map((field) => (
+                {/* {fields.map((field) => (
                   <Form.Item
                     key={field.name}
                     label={field.label}
@@ -350,7 +395,24 @@ export default function App() {
                       <Input onChange={handleInputChange(field.name)} />
                     )}
                   </Form.Item>
-                ))}
+                ))} */}
+                {createFormItem({ fieldName: "name", rules: [{ required: true }] })}
+                {createFormItem({
+                  fieldName: "email",
+                  rules: [{ required: true, type: "email" }],
+                  type: "email",
+                })}
+                {createFormItem({
+                  fieldName: "password",
+                  rules: [{ required: true, type: "password" }],
+                  type: "password",
+                })}
+                {createFormItem({
+                  fieldName: "password2",
+                  rules: [{ required: true, type: "password" }],
+                  type: "password",
+                  label: "Confirm Password",
+                })}
                 <Card title='Rules'>
                   {Object.keys(userRules).map((key) => (
                     <div style={{ padding: 3 }} key={key}>
@@ -386,7 +448,7 @@ export default function App() {
                   type='text'
                   title='Print'
                   onClick={() => {
-                    handlePrint(tableRef,PageName,12)
+                    handlePrint(tableRef, PageName, 12);
                   }}
                   icon={<FaPrint size={"1em"} />}></Button>
                 <Button

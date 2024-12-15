@@ -48,7 +48,6 @@ export default function App() {
   const tableRef = useRef<HTMLDivElement>(null);
   const [_, setCookies] = useCookies(["loading"]); //for loading page
   const [form] = Form.useForm(); // to reset form after save or close
-
   const userName = window.localStorage.getItem("userName");
   const [rulesMatch, setRulesMatch] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -230,7 +229,6 @@ export default function App() {
   }
 
   async function save() {
-
     setErrors({ ...Errors, saveErrors: "" });
     const response = await Axios.post(`${api}/accounts`, {
       accountNumber: accountData.accountNumber,
@@ -360,6 +358,49 @@ export default function App() {
     [edit]
   );
 
+  interface CreateFormItemProps {
+    fieldName: string;
+    rules: any[];
+    type?: "text" | "select" | "number";
+    label?: string;
+    fieldOptions?: { label: string; value: any }[];
+  }
+
+  const createFormItem = ({
+    fieldName,
+    rules,
+    type = "text",
+    label,
+    fieldOptions = [],
+  }: CreateFormItemProps) => {
+    const displayedLabel =
+      label || fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
+
+    return (
+      <Col
+        key={fieldName}
+        xs={{ flex: "100%" }}
+        sm={{ flex: "50%" }}
+        md={{ flex: "50%" }}
+        lg={{ flex: "50%" }}
+        style={{ padding: 5 }}>
+        <Form.Item key={fieldName} label={displayedLabel} name={fieldName} rules={rules}>
+          {type === "select" ? (
+            <Select
+              onChange={handleInputChange(fieldName)}
+              showSearch
+              allowClear
+              options={fieldOptions}
+              style={{ width: "100%" }}
+            />
+          ) : (
+            <Input onChange={handleInputChange(fieldName)} type={type} />
+          )}
+        </Form.Item>
+      </Col>
+    );
+  };
+
   return (
     <>
       <div>
@@ -382,7 +423,7 @@ export default function App() {
                 validateMessages={validateMessages}
                 onFinish={handleOk}>
                 <Row>
-                  {formFields.map((field) => (
+                  {/* {formFields.map((field) => (
                     <Col
                       key={field.name}
                       xs={{ flex: "100%" }}
@@ -415,8 +456,44 @@ export default function App() {
                         )}
                       </Form.Item>
                     </Col>
-                  ))}
+                  ))} */}
+                  {createFormItem({
+                    fieldName: "parentAccount",
+                    rules: [{ required: true }],
+                    type: "select",
+                    label: "Parent Account",
+                    fieldOptions: AccounsOptions,
+                  })}
+                  {createFormItem({
+                    fieldName: "accountName",
+                    rules: [{ required: true }],
+                    label: "Account Name",
+                  })}
+                  {createFormItem({
+                    fieldName: "accountType",
+                    rules: [{ required: true }],
+                    type: "select",
+                    label: "Account Type",
+                    fieldOptions: accountTypeOptions,
+                  })}
+                  {createFormItem({
+                    fieldName: "balance",
+                    rules: [{ required: false }],
+                    type: "number",
+                    fieldOptions: accountTypeOptions,
+                  })}
+                  {createFormItem({ fieldName: "notes", rules: [{ required: false }] })}
                 </Row>
+                {/*
+
+    {
+      label: "Notes",
+      name: "notes",
+      type: "text",
+      rules: [{ required: false }],
+    },
+    { label: "User", name: "user", type: "text", rules: [{ required: true }] },
+  ]; */}
                 <br />
                 <Divider />
                 <Form.Item style={{ marginBottom: -40, textAlign: "right" }}>
